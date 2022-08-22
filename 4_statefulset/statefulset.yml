@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-exemplo
+  clusterName: kind-workloads
+  namespace: default
+  labels:
+    db: exemplo
+spec:
+  clusterIP: None
+  selector:
+    db: exemplo
+  ports:
+    - name: mysql-exemplo
+      port: 3306
+      targetPort: 3306
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-exemplo
+  clusterName: kind-workloads
+  namespace: default
+  labels:
+    db: exemplo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      db: exemplo
+  serviceName: mysql-exemplo
+  template:
+    metadata:
+      labels:
+        db: exemplo
+    spec:
+      containers:
+        - name: mysql-exemplo
+          image: mysql:5.7
+          env:
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: "yes"
+            - name: MYSQL_DATABASE
+              value: exemplo
+            - name: MYSQL_USER
+              value: exemplo
+            - name: MYSQL_PASSWORD
+              value: exemplo123
+          ports:
+            - name: mysql-exemplo
+              containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            limits:
+              memory: 500Mi
+              cpu: 500m
+            requests:
+              memory: 100Mi
+              cpu: 100m
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        storageClassName: standard
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

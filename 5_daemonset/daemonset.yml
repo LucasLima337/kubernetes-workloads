@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: gallery-project
+  clusterName: kind-workloads
+  namespace: default
+  labels:
+    app: gallery-project
+spec:
+  selector:
+    matchLabels:
+      app: gallery-project
+  template:
+    metadata:
+      labels:
+        app: gallery-project
+    spec:
+      containers:
+      - name: gallery-project
+        image: lucas3337/gallery-project:v1
+        ports:
+        - name: web
+          protocol: TCP
+          containerPort: 9000
+        resources:
+          requests:
+            cpu: 200m
+            memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 200Mi
